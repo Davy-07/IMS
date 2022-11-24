@@ -1,0 +1,72 @@
+<%- include('partials/head',{page: "customers"}) %>
+
+<h2 class="title is-2">All Customers</h2>
+<div id="app">
+<table class="table is-striped is-fullwidth" >
+        <thead>
+          <tr>
+            <th>id</th>
+            <th>Username</th>
+            
+          </tr>
+        </thead>
+        <tbody>
+    <% products.forEach((item,index)=> { %>
+
+          <tr>
+              <td><%-item.id %></td>
+              <td><%-item.username %></td>
+              <td>
+                <a href="<%-baseUrl %>/admin/users/delete/<%-item.id %>" class="button">Unlist Customer</a>
+              </td>
+          </tr>
+    <% }) %>
+        </tbody>
+      </table>
+    </div>
+      <script src="<%-baseUrl %>/js/vue.js"></script>
+      <script src="<%-baseUrl %>/js/sweetalert2.all.min.js"></script>
+      <script>
+      new Vue({
+          el : "#app",
+          data : {
+            <% products.forEach((item,index)=> { %>
+                d<%-index %> : <%-item.stock %>,
+            <% }) %>
+          },
+          methods : {
+            editstock: function(id,did) {
+                swal({
+                    title: 'Enter new stock details',
+                    input: 'text',
+                    inputValue : this[did],
+                    inputAttributes: {
+                        autocapitalize: 'off'
+                    },
+                    showCancelButton: true,
+                    confirmButtonText: 'Update',
+                    showLoaderOnConfirm: true,
+                    preConfirm: (newval) => {
+                        return fetch(`<%-baseUrl%>/stock/update/${id}/${newval}`)
+                        .then(response => {
+                            if (!response.ok) {
+                            throw new Error(response.statusText)
+                            }
+                            return response.text()
+                        })
+                        .catch(error => {
+                            swal.showValidationMessage(
+                            `Request failed: ${error}`
+                            )
+                        })
+                    },
+                    allowOutsideClick: () => !swal.isLoading()
+                    }).then((result) => {
+                    console.log(result)
+                    window.location.reload();
+                    })
+          }
+        }
+      })
+      </script>
+<%- include('partials/foot') %>
